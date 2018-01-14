@@ -119,7 +119,7 @@ FileHeader::Deallocate(PersistentBitmap *freeMap)
 		kernel->synchDisk->ReadSector(dataSectors[i],(char*)index);
 		for(int j=0; j<32; j++){
 			if (index[j]!=-1)
-				freeMap->Clear((int)index[j])
+				freeMap->Clear((int)index[j]);
 		}
 		ASSERT(freeMap->Test((int) dataSectors[i]));  // ought to be marked!
 		freeMap->Clear((int) dataSectors[i]);
@@ -189,7 +189,7 @@ FileHeader::ByteToSector(int offset)
 {
 	int target = offset/SectorSize;
 	int index[32];
-	kernel->synchDisk->ReadSector(dataSectors[target/32], (char*)index)
+	kernel->synchDisk->ReadSector(dataSectors[target/32], (char*)index);
 	return (index[target%32]);
 /*
     return(dataSectors[offset / SectorSize]);
@@ -216,7 +216,7 @@ FileHeader::FileLength()
 void
 FileHeader::Print()
 {
-    int i, j, k;
+    int i, j, k=0;
     char *data = new char[SectorSize];
     int index[32];
 
@@ -225,8 +225,8 @@ FileHeader::Print()
 		printf("%d ", dataSectors[i]);
     printf("\nFile contents:\n");
     for (i=0; i<divRoundUp(numSectors,32); i++){
-    	kernel->synchDisk->ReadSector(dataSectors[i], (char*)index)
-    	for (l=k=0; l<32; l++){
+    	kernel->synchDisk->ReadSector(dataSectors[i], (char*)index);
+    	for (int l=0; l<32; l++){
     		if(index[l]!=-1)
     			{
     				kernel->synchDisk->ReadSector(index[l], data);
