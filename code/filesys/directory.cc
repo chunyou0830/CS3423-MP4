@@ -42,8 +42,9 @@ Directory::Directory(int size)
 	
 	// MP4 mod tag
 	memset(table, 0, sizeof(DirectoryEntry) * size);  // dummy operation to keep valgrind happy
-	
+		
 	tableSize = size;
+	cout << "Directory inited, with tablesize = " << tableSize << endl;
 	for (int i = 0; i < tableSize; i++)
 	table[i].inUse = FALSE;
 }
@@ -95,9 +96,14 @@ Directory::WriteBack(OpenFile *file)
 int
 Directory::FindIndex(char *name)
 {
-	for (int i = 0; i < tableSize; i++)
+	//cout << "[DirFindIndex]\tInside" << endl;
+	cout << "Fetched table size = " << tableSize << endl;
+	for (int i = 0; i < tableSize; i++){
+		//cout << i << endl;
 		if (table[i].inUse && !strncmp(table[i].name, name, FileNameMaxLen))
 		return i;
+	}
+	//cout << "[DirFindIndex]\tCannot found" << endl;
 	return -1;		// name not in directory
 }
 
@@ -237,6 +243,7 @@ Directory::Print()
 { 
 	FileHeader *hdr = new FileHeader;
 
+	cout << "Direcotry tableSize: " << tableSize << endl;
 	printf("Directory contents:\n");
 	for (int i = 0; i < tableSize; i++)
 	if (table[i].inUse) {

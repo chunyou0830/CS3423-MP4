@@ -203,7 +203,7 @@ bool FileSystem::Create(char *name, int initialSize)
 	// Default root dir as parent
 	if(dirName==NULL){
 		parentDirectory = new Directory(NumDirEntries);
-		parentDirectory->FetchFrom(directoryFile);
+		//parentDirectory->FetchFrom(directoryFile);
 		parentDirectoryFile = directoryFile;
 	}
 	// If not in root dir, change the parent directory
@@ -211,23 +211,31 @@ bool FileSystem::Create(char *name, int initialSize)
 		Directory *rootDirectory = new Directory(NumDirEntries);
 		rootDirectory->FetchFrom(directoryFile);
 		int parentDirectoryFileSector = rootDirectory->Find(dirName, true);
-		cout << "PARENT DIR FILE SEC : " << parentDirectoryFileSector << endl;
+		//cout << "PARENT DIR FILE SEC : " << parentDirectoryFileSector << endl;
 		if(parentDirectoryFileSector == -1){
 			return FALSE;
 		}
+		cout << "GOING TO OPENFILE AT SECTOR " << parentDirectoryFileSector << endl;
 		parentDirectoryFile = new OpenFile(parentDirectoryFileSector);
-		parentDirectory->FetchFrom(parentDirectoryFile);
+		//cout << "GOING TO FETCHFROM" << endl;
+		//parentDirectory->FetchFrom(parentDirectoryFile);
 		//cout << "-----------------------------" << endl;
 		//parentDirectory->Print();
 		//cout << "-----------------------------" << endl;
+		//cout << "GOING TO DELETE ROOT" << endl;
+		delete rootDirectory;
 	}
-	//parentDirectory->Print();
+	parentDirectory->FetchFrom(parentDirectoryFile);
+	parentDirectory->Print();
+	cout << "1. Find filename in parent dir" << endl;
 	if (parentDirectory->Find(fileName, false) != -1){
 		success = FALSE;			// file is already in directory
 	}
 	else {	
+		cout << "2. Find and set freemap" << endl;
 		freeMap = new PersistentBitmap(freeMapFile,NumSectors);
 		sector = freeMap->FindAndSet();	// find a sector to hold the file header
+		cout << "3. Add filename to parentdirectory" << endl;
 		if (sector == -1) {
 			success = FALSE;		// no free block for file header 
 		}		
@@ -235,16 +243,20 @@ bool FileSystem::Create(char *name, int initialSize)
 			success = FALSE;	// no space in directory
 		}
 		else {
+			cout << "4. Allocate HDR with init size" << endl;
 			hdr = new FileHeader;
 			if (!hdr->Allocate(freeMap, initialSize)){
 				success = FALSE;	// no space on disk for data
 			}
 			else {	
-			success = TRUE;
+				success = TRUE;
 			// everthing worked, flush all changes back to disk
-			hdr->WriteBack(sector); 		
-			parentDirectory->WriteBack(parentDirectoryFile);
-			freeMap->WriteBack(freeMapFile);
+				cout << "Writeback hdr" << endl;
+				hdr->WriteBack(sector);
+				cout << "Writeback parentdir" << endl;	
+				parentDirectory->WriteBack(parentDirectoryFile);
+				cout << "Writeback freemap " << endl;
+				freeMap->WriteBack(freeMapFile);
 			}
 			delete hdr;
 		}
@@ -491,7 +503,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 	// Creating directory in root
 	if(dirName == NULL){
 		int sector = freeMap->FindAndSet();
-
+		cout << "Allocated new dir at sector " << sector << endl;
 		hdr->WriteBack(sector);
 		OpenFile *newDirectoryFile = new OpenFile(sector);
 		newDirectory->WriteBack(newDirectoryFile);
@@ -515,6 +527,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 			parentDirectory->FetchFrom(parentDirectoryFile);
 
 			int sector = freeMap->FindAndSet();
+			cout << "Allocated new dir at sector " << sector << endl;
 			hdr->WriteBack(sector);
 			OpenFile *newDirectoryFile = new OpenFile(sector);
 			newDirectory->WriteBack(newDirectoryFile);
@@ -529,6 +542,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 	}
 
 	delete rootDirectory;
+	newDirectory->Print();
 	delete newDirectory;
 
 	freeMap->WriteBack(freeMapFile);
