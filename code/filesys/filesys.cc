@@ -346,7 +346,7 @@ FileSystem::Remove(char *name, bool recursiveflag)
 
 	fileHdr->Deallocate(freeMap);  		// remove data blocks
 	freeMap->Clear(sector);			// remove header block
-	directory->Remove(filename);
+	directory->Remove(fileName);
 
 	freeMap->WriteBack(freeMapFile);		// flush to disk
 	directory->WriteBack(of);        // flush to disk
