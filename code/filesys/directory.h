@@ -22,6 +22,9 @@
 #define FileNameMaxLen 		9	// for simplicity, we assume 
 					// file names are <= 9 characters long
 
+#define DIR 0
+#define FILE 1
+
 // The following class defines a "directory entry", representing a file
 // in the directory.  Each entry gives the name of the file, and where
 // the file's header is to be found on disk.
@@ -33,6 +36,7 @@ class DirectoryEntry {
   public:
     bool inUse;				// Is this directory entry in use?
     int sector;				// Location on disk to find the 
+    int type;               // MP4 MODIFIED.
 					//   FileHeader for this file 
     char name[FileNameMaxLen + 1];	// Text name for file, with +1 for 
 					// the trailing '\0'

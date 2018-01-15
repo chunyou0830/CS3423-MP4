@@ -223,7 +223,7 @@ bool FileSystem::Create(char *name, int initialSize)
 		if (sector == -1) {
 			success = FALSE;		// no free block for file header 
 		}		
-		else if (!parentDirectory->Add(name, sector)){
+		else if (!parentDirectory->Add(name, sector, FILE)){
 			success = FALSE;	// no space in directory
 		}
 		else {

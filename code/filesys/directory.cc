@@ -139,6 +139,7 @@ Directory::Find(char *name, int recursiveLevel)
 
 //----------------------------------------------------------------------
 // Directory::Add
+// 	MP4 MODIFIED
 // 	Add a file into the directory.  Return TRUE if successful;
 //	return FALSE if the file name is already in the directory, or if
 //	the directory is completely full, and has no more space for
@@ -149,7 +150,7 @@ Directory::Find(char *name, int recursiveLevel)
 //----------------------------------------------------------------------
 
 bool
-Directory::Add(char *name, int newSector)
+Directory::Add(char *name, int newSector, int fileType)
 { 
 	if (FindIndex(name) != -1)
 	return FALSE;
@@ -159,6 +160,7 @@ Directory::Add(char *name, int newSector)
 			table[i].inUse = TRUE;
 			strncpy(table[i].name, name, FileNameMaxLen); 
 			table[i].sector = newSector;
+			table[i].type = fileType;
 		return TRUE;
 	}
 	return FALSE;	// no space.  Fix when we have extensible files.
