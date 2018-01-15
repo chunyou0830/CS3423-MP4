@@ -332,7 +332,7 @@ int Kernel::Exec(char* name)
 
 int Kernel::CreateFile(char *filename, int filesize)
 {
-	return fileSystem->Create(filename, int filesize);
+	return fileSystem->Create(filename, filesize);
 }
 
 
