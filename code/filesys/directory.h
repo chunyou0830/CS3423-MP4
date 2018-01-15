@@ -58,14 +58,14 @@ class Directory {
     void WriteBack(OpenFile *file);	// Write modifications to 
 					// directory contents back to disk
 
-    int Find(char *name);		// Find the sector number of the 
+    int Find(char *name, int recursiveLevel);		// Find the sector number of the 
 					// FileHeader for file: "name"
 
     bool Add(char *name, int newSector);  // Add a file name into the directory
 
     bool Remove(char *name);		// Remove a file from the directory
 
-    void List();			// Print the names of all the files
+    void List(int level, bool recursively);			// Print the names of all the files
 					//  in the directory
     void Print();			// Verbose print of the contents
 					//  of the directory -- all the file
