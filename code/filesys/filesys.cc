@@ -443,6 +443,7 @@ bool FileSystem::CheckFileLength(char *fullpath)
 {
 	DEBUG(dbgFile, "Checking file length");
 	char *filename = GetFileName(fullpath);
+	cout <<	"FILENAME" << strlen(filename) << endl << "FULLPATH" << strlen(fullpath) << endl;
 	if(strlen(filename)>9){
 		cout << "File name too long." << endl;
 		return FALSE;
