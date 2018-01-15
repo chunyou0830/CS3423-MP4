@@ -104,6 +104,7 @@ ExceptionHandler(ExceptionType which)
 			ASSERTNOTREACHED();
             break;
         case SC_Write:
+        	{
             char *val1 = kernel->machine->ReadRegister(4);
             int val2 = kernel->machine->ReadRegister(5);
             int val3 = kernel->machine->ReadRegister(6);
@@ -117,6 +118,7 @@ ExceptionHandler(ExceptionType which)
 			ASSERTNOTREACHED();
             break;
         case SC_Read:
+        	{
             char *val1 = kernel->machine->ReadRegister(4);
             int val2 = kernel->machine->ReadRegister(5);
             int val3 = kernel->machine->ReadRegister(6);
@@ -130,6 +132,7 @@ ExceptionHandler(ExceptionType which)
 			ASSERTNOTREACHED();
             break;
         case SC_Close:
+        	{
 			val = kernel->machine->ReadRegister(4);
 			status = SysClose(val);
 			kernel->machine->WriteRegister(2, (int) status);
