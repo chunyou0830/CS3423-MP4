@@ -93,7 +93,8 @@ ExceptionHandler(ExceptionType which)
 			{
 			char *filename = &(kernel->machine->mainMemory[val]);
 			//cout << filename << endl;
-			status = SysCreate(filename);
+			int filesize = kernel->machine->ReadRegister(5);
+			status = SysCreate(filename, filesize);
 			kernel->machine->WriteRegister(2, (int) status);
 			}
 			kernel->machine->WriteRegister(PrevPCReg, kernel->machine->ReadRegister(PCReg));

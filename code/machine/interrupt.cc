@@ -248,9 +248,9 @@ Interrupt::Halt()
 }
 
 int
-Interrupt::CreateFile(char *filename)
+Interrupt::CreateFile(char *filename, int filesize)
 {
-    return kernel->CreateFile(filename);
+    return kernel->CreateFile(filename, filesize);
 }
 
 //----------------------------------------------------------------------

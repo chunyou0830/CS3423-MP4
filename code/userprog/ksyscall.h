@@ -26,12 +26,12 @@ int SysAdd(int op1, int op2)
   return op1 + op2;
 }
 
-int SysCreate(char *filename)
+int SysCreate(char *filename, int filesize)
 {
 	// return value
 	// 1: success
 	// 0: failed
-	return kernel->interrupt->CreateFile(filename);
+	return kernel->interrupt->CreateFile(filename, filesize);
 }
 
 int SysOpen(char *filename)
