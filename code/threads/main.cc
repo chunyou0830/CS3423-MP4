@@ -149,13 +149,21 @@ Print(char *name)
 
 //----------------------------------------------------------------------
 // MP4 mod tag
+//  MP4 MODIFIED.
 // CreateDirectory
 //      Create a new directory with "name"
 //----------------------------------------------------------------------
 static void
 CreateDirectory(char *name)
 {
-	// MP4 Assignment
+    for(int i=0; i<strlen(name); i++){
+        if(!(isalnum(name[i]) || name[i]=='/' || name[i]=='-' || name[i]=='_' || name[i]=='.')){
+            cout << "Invalid filename" << endl;
+            return;
+        }
+    }
+
+    kernel->fileSystem->CreateDirectory(name);
 }
 
 //----------------------------------------------------------------------
