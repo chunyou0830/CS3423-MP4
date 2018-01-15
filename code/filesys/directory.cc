@@ -194,6 +194,26 @@ Directory::Remove(char *name)
 	return TRUE;	
 }
 
+bool
+Directory::RemoveAll(PersistentBitmap* freeMap, OpenFile *op){
+	for(int i=0; i<tablesize; i++){
+		if(table[i].inUse){
+			if(table[i].type == DIR){
+				Directory *dir = new Directory(NumDirEntries);
+				OpenFile *of = new OpenFile(table[i].sector);
+				dir->FetchFrom(of);
+				dir->RemoveAll(freeMap,of);
+			}
+				FileHeader *filehdr = new FileHeader;
+				filehdr->FetchFrom(table[i].sector);
+				table[i].inUse = FALSE;
+				filehdr->Deallocate(freeMap);
+				freeMap->Clear(table[i].sector);
+		}
+	}
+	this->WriteBack(op);
+}
+
 //----------------------------------------------------------------------
 // Directory::List
 //  MP4 MODIFIED.

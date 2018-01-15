@@ -67,6 +67,8 @@ class Directory {
 
     bool Add(char *name, int newSector, int fileType);  // MP4 MODIFIED. Add a file name into the directory
 
+    bool RemoveAll(PersistentBitmap* freeMap, OpenFile *op);
+
     bool Remove(char *name);		// Remove a file from the directory
 
     void List(int level, bool recursively);			// Print the names of all the files

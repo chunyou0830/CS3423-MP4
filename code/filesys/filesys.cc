@@ -316,7 +316,7 @@ FileSystem::Open(char *name)
 //----------------------------------------------------------------------
 
 bool
-FileSystem::Remove(char *name)
+FileSystem::Remove(char *name, bool recursiveflag)
 { 
 	Directory *directory;
 	PersistentBitmap *freeMap;
@@ -325,7 +325,15 @@ FileSystem::Remove(char *name)
 	
 	directory = new Directory(NumDirEntries);
 	directory->FetchFrom(directoryFile);
-	sector = directory->Find(name, false);
+    char *fileName = GetFileName(name);
+    char *dirName = GetDirectoryName(name);
+    of = directoryFile;
+    if (recursiveflag==flase){
+        if(dirName != NULL){
+            of = new OpenFile(directory->Find(dirName,true));
+            directory->FetchFrom(of);
+        }
+	sector = directory->Find(filename, false);
 	if (sector == -1) {
 	   delete directory;
 	   return FALSE;			 // file not found 
@@ -337,13 +345,44 @@ FileSystem::Remove(char *name)
 
 	fileHdr->Deallocate(freeMap);  		// remove data blocks
 	freeMap->Clear(sector);			// remove header block
-	directory->Remove(name);
+	directory->Remove(filename);
 
 	freeMap->WriteBack(freeMapFile);		// flush to disk
-	directory->WriteBack(directoryFile);        // flush to disk
+	directory->WriteBack(of);        // flush to disk
+}else{
+    freeMap = new PersistentBitmap(freeMapFile, NumSectors);
+    sector = directory->Find(fileName,true);
+    if (sector == -1) {
+       delete directory;
+       return FALSE;             // file not found 
+    }
+    Directory *dirtemp = new Directory(NumDirEntries);
+    OpenFile *temp = directoryFile;
+    dirtemp->FetchFrom(directoryFile);
+    if(dirName != NULL){
+        of = new OpenFile(directory->Find(dirName,true));
+        directory->FetchFrom(temp);
+    }
+
+    of = new OpenFile(sector);
+    directory->FetchFrom(of);
+    directory->RemoveAll(freeMap,of);
+
+    fileHdr = new FileHeader;
+    fileHdr->FetchFrom(sector);
+
+    fileHdr->Deallocate(freeMap);
+    freeMap->Clear(sector);
+
+    dirtemp->Remove(fileName);
+
+    freeMap->WriteBack(freeMapFile);
+    dirtemp->WriteBack(temp);
+}
 	delete fileHdr;
 	delete directory;
 	delete freeMap;
+    delete of;
 	return TRUE;
 } 
 

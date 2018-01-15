@@ -195,6 +195,7 @@ main(int argc, char **argv)
     char *printFileName = NULL; 
     char *removeFileName = NULL;
     bool dirListFlag = false;
+    bool removeflag = false;
     bool dumpFlag = false;
 	// MP4 mod tag
 	char *createDirectoryName = NULL;
@@ -245,13 +246,16 @@ main(int argc, char **argv)
 	else if (strcmp(argv[i], "-r") == 0) {
 	    ASSERT(i + 1 < argc);
 	    removeFileName = argv[i + 1];
+        removeflag = true;
+        recursiveRemoveFlag = false;
 	    i++;
 	}
 	else if (strcmp(argv[i], "-rr") == 0) {
 		// MP4 mod tag
 		ASSERT(i + 1 < argc);
 		removeFileName = argv[i + 1];
-		recursiveRemoveFlag = true;
+        removeflag = true;
+        recursiveRemoveFlag = true;
 		i++;
 	}
 	else if (strcmp(argv[i], "-l") == 0) {
@@ -317,8 +321,8 @@ main(int argc, char **argv)
     }
 
 #ifndef FILESYS_STUB
-    if (removeFileName != NULL) {
-		kernel->fileSystem->Remove(removeFileName);
+    if (removeflag) {
+		kernel->fileSystem->Remove(removeFileName, recursiveRemoveFlag);
     }
     if (copyUnixFileName != NULL && copyNachosFileName != NULL) {
 		Copy(copyUnixFileName,copyNachosFileName);
