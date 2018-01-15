@@ -70,6 +70,7 @@ void
 Directory::FetchFrom(OpenFile *file)
 {
 	(void) file->ReadAt((char *)table, tableSize * sizeof(DirectoryEntry), 0);
+	//cout << "TableSize After Fetched : " << tableSize << endl;
 }
 
 //----------------------------------------------------------------------

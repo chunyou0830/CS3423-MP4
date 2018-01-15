@@ -199,7 +199,7 @@ bool FileSystem::Create(char *name, int initialSize)
 
 	char *fileName = GetFileName(name);
 	char *dirName = GetDirectoryName(name);
-
+	//cout << "name: " << name << endl << "fileName: " << fileName << endl << "dirName: " << dirName << endl;
 	// Default root dir as parent
 	parentDirectory = new Directory(NumDirEntries);
 	parentDirectoryFile = directoryFile;
@@ -211,11 +211,12 @@ bool FileSystem::Create(char *name, int initialSize)
 		if(parentDirectoryFileSector == -1){
 			return FALSE;
 		}
+		//cout << "Parent Directory File Sector is " << parentDirectoryFileSector << endl;
 		parentDirectoryFile = new OpenFile(parentDirectoryFileSector);
 		delete rootDirectory;
 	}
 	parentDirectory->FetchFrom(parentDirectoryFile);
-	parentDirectory->Print();
+	//parentDirectory->Print();
 	
 	if (parentDirectory->Find(fileName, false) != -1){
 		success = FALSE;			// file is already in directory
@@ -244,6 +245,14 @@ bool FileSystem::Create(char *name, int initialSize)
 			delete hdr;
 		}
 		delete freeMap;
+	}
+	if(success){
+		ASSERT(parentDirectory->Find(fileName, false) != -1);
+		//cout << "Pass opening test after file creation" << endl;
+	}
+	else{
+		cout << "File creation not success" << endl;
+		success = FALSE;
 	}
 	delete parentDirectory;
 	return success;
@@ -419,6 +428,7 @@ char* FileSystem::GetFileName(char *fullpath)
 	filename = strrchr(fullpath, '/');
 	filename++;
 	//DEBUG(dbgFile, "Get file name finished");
+	//cout << "GetFileName " << filename << endl;
 	return filename;
 }
 
@@ -429,14 +439,19 @@ char* FileSystem::GetFileName(char *fullpath)
 
 char* FileSystem::GetDirectoryName(char *fullpath)
 {
+	char *fullpath_cp = (char*)malloc(sizeof(char) * (strlen(fullpath)+1));
+	//cout << "Input dir name is " << fullpath << endl;
+	memcpy(fullpath_cp, fullpath, strlen(fullpath)+1);
+	//cout << "Copied content" << fullpath_cp << endl;
 	//DEBUG(dbgFile, "Get directory name");
-	char *filename = GetFileName(fullpath);
-	char *dirname = strtok(fullpath, "/");
+	char *filename = GetFileName(fullpath_cp);
+	char *dirname = strtok(fullpath_cp, "/");
 	char *parent = NULL;
 	while(dirname != filename){
 		parent = dirname;
 		dirname = strtok(NULL, "/");
 	}
+	//cout << "GetDirName " << parent << endl;
 	return parent;
 }
 
@@ -474,23 +489,32 @@ void FileSystem::CreateDirectory(char *fullpath)
 	}
 	PersistentBitmap * freeMap = new PersistentBitmap(freeMapFile, NumSectors);
 	OpenFile *freeMapFile = new OpenFile(FreeMapSector);
+	
 	char *fileName = GetFileName(fullpath);
+	//cout << "Getted file name" << endl;
 	char *dirName = GetDirectoryName(fullpath);
+	//cout << "Getted dir name" << endl;
 	FileHeader *hdr = new FileHeader;
 	hdr->Allocate(freeMap, DirectoryFileSize);
 
 	Directory *rootDirectory = new Directory(NumDirEntries);
+	//cout << "fetcfh root dir" << endl;
 	rootDirectory->FetchFrom(directoryFile);
+	//cout << "Create new dir instance" << endl;
 	Directory *newDirectory = new Directory(NumDirEntries);
-
+	//cout << "Before inside if section" << endl;
 	// Creating directory in root
 	if(dirName == NULL){
 		int sector = freeMap->FindAndSet();
 		//cout << "Allocated new dir at sector " << sector << endl;
 		hdr->WriteBack(sector);
+		//cout << "new openfile at sector" << endl;
 		OpenFile *newDirectoryFile = new OpenFile(sector);
+		//cout << "Write Back" << endl;
 		newDirectory->WriteBack(newDirectoryFile);
+		//cout << "root dir add" << endl;
 		rootDirectory->Add(fileName, sector, DIR);
+		//cout << "root dir writeback" << endl;
 		rootDirectory->WriteBack(directoryFile);
 
 		delete newDirectoryFile;
@@ -498,7 +522,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 	// Creating directory in a directory
 	else{
 		int parentDirectoryFileSector = rootDirectory->Find(dirName, true);
-
+		//cout << "Parent Directory File Sector is " << parentDirectoryFileSector << endl;
 		// If cannot find parent dir, then return
 		if(parentDirectoryFileSector == -1){
 			cout << "Invalid path" << endl;
@@ -525,7 +549,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 	}
 
 	delete rootDirectory;
-	newDirectory->Print();
+	//newDirectory->Print();
 	delete newDirectory;
 
 	freeMap->WriteBack(freeMapFile);
