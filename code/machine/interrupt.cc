@@ -247,13 +247,11 @@ Interrupt::Halt()
     delete kernel;	// Never returns.
 }
 
-#ifdef FILESYS_STUB
 int
 Interrupt::CreateFile(char *filename)
 {
     return kernel->CreateFile(filename);
 }
-#endif
 
 //----------------------------------------------------------------------
 // Interrupt::Schedule

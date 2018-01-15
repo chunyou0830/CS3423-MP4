@@ -126,6 +126,14 @@ class FileSystem {
 
 	void CreateDirectory(char *fullpath);
 
+	int Close(int id);
+
+	int Read(char *buf, int len, int id);
+
+	int Write(char *buf, int len, int id);
+
+	OpenFile *fileDescriptorTable[20];
+
   private:
    OpenFile* freeMapFile;		// Bit map of free disk blocks,
 					// represented as a file

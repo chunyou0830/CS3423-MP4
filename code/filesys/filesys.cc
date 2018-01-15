@@ -557,5 +557,35 @@ void FileSystem::CreateDirectory(char *fullpath)
 	delete freeMap;
 	delete hdr;
 }
+	
+int FileSystem::Write(char *buf, int len, int id){
+	OpenFile* of;
+	if(fileDescriptorTable[id-1]==NULL||(id-1)<0||(id-1)>=20){
+		return -1;
+	}
+	of = fileDescriptorTable[id-1];
+	int result;
+	result = of->Write(buf,len);
+	return result;
+}
+
+int FileSystem::Read(char *buf, int len, int id){
+	OpenFile* of;
+	if(fileDescriptorTable[id-1]==NULL||(id-1)<0||(id-1)>=20){
+		return -1;
+	}
+	of = fileDescriptorTable[id-1];
+	int result;
+	result = of->Read(buf,len);
+	return result;
+}
+
+int FileSystem::Close(int id){
+	if(fileDescriptorTable[id-1]==NULL||(id-1)<0||(id-1)>=20){
+		return 0;
+	}
+	fileDescriptorTable[id-1]==NULL;
+	return 1;
+}
 
 #endif // FILESYS_STUB

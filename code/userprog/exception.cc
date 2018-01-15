@@ -126,43 +126,6 @@ ExceptionHandler(ExceptionType which)
 			return;	
 			ASSERTNOTREACHED();
             break;
-        case SC_PrintInt:
-			{
-			int i=0;
-        	char *cha = new char[100];
-        	val = kernel->machine->ReadRegister(4);
-		
-        	if (val<10){
-			char ch;
-			ch = val + '0';
-        		cha[i++] = val + '0';
-        		cha[i++] = '\n';
-			kernel->synchConsoleOut->PutString(cha, i);
-			//kernel->synchConsoleOut->PutChar(ch);
-			//kernel->synchConsoleOut->PutChar('\n');
-        	}
-        	else{
-        		while(val > 0){
-        			cha[i++] = val%10 + '0';
-        			val /= 10;
-        		}
-
-        		for (int j=0; j<i-j; j++){
-        			char temp = cha[j];
-        			cha[j] = cha[i-j-1];
-        			cha[i-j-1] = temp;
-        		}
-        		cha[i++] = '\n';
-				kernel->synchConsoleOut->PutString(cha, i);
-        	}
-		}
-		//cerr << "Test point";
-	        kernel->machine->WriteRegister(PrevPCReg, kernel->machine->ReadRegister(PCReg));
-			kernel->machine->WriteRegister(PCReg, kernel->machine->ReadRegister(PCReg) + 4);
-			kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg)+4);
-			return;
-			ASSERTNOTREACHED();
-	        break;
 		case SC_Exit:
 			DEBUG(dbgAddr, "Program exit\n");
             val=kernel->machine->ReadRegister(4);
