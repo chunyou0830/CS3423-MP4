@@ -329,10 +329,10 @@ int Kernel::Exec(char* name)
 //  cout << "after ThreadedKernel:Run();" << endl;  // unreachable
 }
 
-#ifdef FILESYS_STUB
+
 int Kernel::CreateFile(char *filename)
 {
 	return fileSystem->Create(filename);
 }
-#endif
+
 
