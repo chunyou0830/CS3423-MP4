@@ -201,12 +201,16 @@ bool FileSystem::Create(char *name, int initialSize)
 	char *dirName = GetDirectoryName(name);
 
 	// Default root dir as parent
-	parentDirectory = new Directory(NumDirEntries);
-	parentDirectory->FetchFrom(directoryFile);
-	parentDirectoryFile = directoryFile;
+	if(dirName==NULL){
+		parentDirectory = new Directory(NumDirEntries);
+		parentDirectory->FetchFrom(directoryFile);
+		parentDirectoryFile = directoryFile;
+	}
 	// If not in root dir, change the parent directory
-	if(dirName != NULL){
-		int parentDirectoryFileSector = parentDirectory->Find(dirName, true);
+	else{
+		Directory *rootDirectory = new Directory(NumDirEntries);
+		rootDirectory->FetchFrom(directoryFile);
+		int parentDirectoryFileSector = rootDirectory->Find(dirName, true);
 		cout << "PARENT DIR FILE SEC : " << parentDirectoryFileSector << endl;
 		if(parentDirectoryFileSector == -1){
 			return FALSE;
