@@ -411,7 +411,9 @@ char* FileSystem::GetFileName(char *fullpath)
 	DEBUG(dbgFile, "Get file name");
 	char *filename;
 	filename = strrchr(fullpath, '/');
-	return filename++;
+	filename++;
+	DEBUG(dbgFile, "Get file name finished");
+	return filename;
 }
 
 //----------------------------------------------------------------------
