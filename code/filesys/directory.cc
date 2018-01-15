@@ -111,12 +111,12 @@ Directory::FindIndex(char *name)
 //----------------------------------------------------------------------
 
 int
-Directory::Find(char *name, int recursiveLevel)
+Directory::Find(char *name, bool recursively)
 {
 	int i = FindIndex(name);
 
 	if (i != -1){
-		if(recursiveLevel){
+		if(recursively){
 			int result = -1;
 			for(int j=0; j<tableSize; j++){
 				if(table[j].inUse && (table[j].type==DIR)){

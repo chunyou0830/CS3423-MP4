@@ -184,7 +184,7 @@ FileSystem::~FileSystem()
 
 bool FileSystem::Create(char *name, int initialSize)
 {
-	if(!CheckFileLength){
+	if(!CheckFileLength(name)){
 		return FALSE;
 	}
 	OpenFile *parentDirectoryFile;
@@ -272,7 +272,8 @@ FileSystem::Open(char *name)
 	parentDirectory->FetchFrom(directoryFile);
 	// If not in root dir, change the parent directory
 	if(dirName != NULL){
-		OpenFile *parentDirectoryFile = new OpenFile(parentDirectory->Find(dirName));
+		int parentDirectoryFileSector = parentDirectory->Find(dirName)
+		OpenFile *parentDirectoryFile = new OpenFile(parentDirectoryFileSector);
 		parentDirectory->FetchFrom(parentDirectoryFile);
 		delete parentDirectoryFile;
 	}
@@ -281,7 +282,7 @@ FileSystem::Open(char *name)
 	if (sector >= 0){
 		openFile = new OpenFile(sector);	// name was found in directory 
 	}
-	delete rootDirectory;
+	delete parentDirectory;
 	return openFile;				// return NULL if not found
 }
 
@@ -309,7 +310,7 @@ FileSystem::Remove(char *name)
 	
 	directory = new Directory(NumDirEntries);
 	directory->FetchFrom(directoryFile);
-	sector = directory->Find(name);
+	sector = directory->Find(name, false);
 	if (sector == -1) {
 	   delete directory;
 	   return FALSE;			 // file not found 
@@ -424,7 +425,7 @@ char* FileSystem::GetDirectoryName(char *fullpath)
 	char *parent = NULL;
 	while(dirname != filename){
 		parent = dirname;
-		dirname = strtok(NULL, '/';)
+		dirname = strtok(NULL, '/');
 	}
 	return parent;
 }
@@ -463,7 +464,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 	OpenFile *freeMapFile = new OpenFile(FreeMapSector);
 	char *fileName = GetFileName(fullpath);
 	char *dirName = GetDirectoryName(fullpath);
-	FileHearer *hdr = new FileHeader;
+	FileHeader *hdr = new FileHeader;
 	hdr->Allocate(freeMap, DirectoryFileSize);
 
 	Directory *rootDirectory = new Directory(NumDirEntries);
@@ -477,7 +478,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 		hdr->WriteBack(sector);
 		OpenFile *newDirectoryFile = new OpenFile(sector);
 		newDirectory->WriteBack(newDirectoryFile);
-		rootDirectory->Add(name, sector, DIR);
+		rootDirectory->Add(fileName, sector, DIR);
 		rootDirectory->WriteBack(directoryFile);
 
 		delete newDirectoryFile;
@@ -501,7 +502,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 			OpenFile *newDirectoryFile = new OpenFile(sector);
 			newDirectory->WriteBack(newDirectoryFile);
 
-			parentDirectory->Add(name, sector, DIR);
+			parentDirectory->Add(fileName, sector, DIR);
 			parentDirectory->WriteBack(parentDirectoryFile);
 
 			delete parentDirectory;
