@@ -408,7 +408,7 @@ FileSystem::Print()
 
 char* FileSystem::GetFileName(char *fullpath)
 {
-	DEBUG(dbgFile, "Get file name" << endl);
+	DEBUG(dbgFile, "Get file name");
 	char *filename;
 	filename = strrchr(fullpath, '/');
 	return filename++;
@@ -421,7 +421,7 @@ char* FileSystem::GetFileName(char *fullpath)
 
 char* FileSystem::GetDirectoryName(char *fullpath)
 {
-	DEBUG(dbgFile, "Get directory name" << endl);
+	DEBUG(dbgFile, "Get directory name");
 	char *filename = GetFileName(fullpath);
 	char *dirname = strtok(fullpath, "/");
 	char *parent = NULL;
@@ -439,7 +439,7 @@ char* FileSystem::GetDirectoryName(char *fullpath)
 
 bool FileSystem::CheckFileLength(char *fullpath)
 {
-	DEBUG(dbgFile, "Checking file length" << endl);
+	DEBUG(dbgFile, "Checking file length");
 	char *filename = GetFileName(fullpath);
 	if(strlen(filename)>9){
 		cout << "File name too long." << endl;
@@ -449,7 +449,7 @@ bool FileSystem::CheckFileLength(char *fullpath)
 		cout << "File path too long." << endl;
 		return FALSE;
 	}
-
+	DEBUG(dbgFile, "Checking file length passed");
 	return TRUE;
 }
 
