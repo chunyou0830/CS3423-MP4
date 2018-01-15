@@ -321,6 +321,7 @@ FileSystem::Remove(char *name, bool recursiveflag)
 	Directory *directory;
 	PersistentBitmap *freeMap;
 	FileHeader *fileHdr;
+    OpenFile *of;
 	int sector;
 	
 	directory = new Directory(NumDirEntries);
@@ -328,12 +329,12 @@ FileSystem::Remove(char *name, bool recursiveflag)
     char *fileName = GetFileName(name);
     char *dirName = GetDirectoryName(name);
     of = directoryFile;
-    if (recursiveflag==flase){
+    if (recursiveflag==false){
         if(dirName != NULL){
             of = new OpenFile(directory->Find(dirName,true));
             directory->FetchFrom(of);
         }
-	sector = directory->Find(filename, false);
+	sector = directory->Find(fileName, false);
 	if (sector == -1) {
 	   delete directory;
 	   return FALSE;			 // file not found 
