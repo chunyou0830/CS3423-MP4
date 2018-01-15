@@ -207,13 +207,17 @@ bool FileSystem::Create(char *name, int initialSize)
 	// If not in root dir, change the parent directory
 	if(dirName != NULL){
 		int parentDirectoryFileSector = parentDirectory->Find(dirName, true);
+		cout << "PARENT DIR FILE SEC : " << parentDirectoryFileSector << endl;
 		if(parentDirectoryFileSector == -1){
 			return FALSE;
 		}
 		parentDirectoryFile = new OpenFile(parentDirectoryFileSector);
 		parentDirectory->FetchFrom(parentDirectoryFile);
+		//cout << "-----------------------------" << endl;
+		//parentDirectory->Print();
+		//cout << "-----------------------------" << endl;
 	}
-
+	//parentDirectory->Print();
 	if (parentDirectory->Find(fileName, false) != -1){
 		success = FALSE;			// file is already in directory
 	}
@@ -223,7 +227,7 @@ bool FileSystem::Create(char *name, int initialSize)
 		if (sector == -1) {
 			success = FALSE;		// no free block for file header 
 		}		
-		else if (!parentDirectory->Add(name, sector, FILE)){
+		else if (!parentDirectory->Add(fileName, sector, FILE)){
 			success = FALSE;	// no space in directory
 		}
 		else {
@@ -270,6 +274,7 @@ FileSystem::Open(char *name)
 
 	// Default root dir as parent
 	parentDirectory->FetchFrom(directoryFile);
+	//parentDirectory->Print();
 	// If not in root dir, change the parent directory
 	if(dirName != NULL){
 		int parentDirectoryFileSector = parentDirectory->Find(dirName, true);
@@ -279,8 +284,10 @@ FileSystem::Open(char *name)
 	}
 
 	int sector = parentDirectory->Find(fileName, false); 
+	cout << "FOUNDED FILE SECTOR NUMBER " << sector << endl;
 	if (sector >= 0){
 		openFile = new OpenFile(sector);	// name was found in directory 
+		cout << "File founded" << endl;
 	}
 	delete parentDirectory;
 	return openFile;				// return NULL if not found

@@ -114,8 +114,8 @@ int
 Directory::Find(char *name, bool recursively)
 {
 	int i = FindIndex(name);
-
-	if (i != -1){
+	cout << "DIRECTORY::FIND i = " << i << endl;
+	if (i == -1){
 		if(recursively){
 			int result = -1;
 			for(int j=0; j<tableSize; j++){
