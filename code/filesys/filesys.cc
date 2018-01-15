@@ -272,7 +272,7 @@ FileSystem::Open(char *name)
 	parentDirectory->FetchFrom(directoryFile);
 	// If not in root dir, change the parent directory
 	if(dirName != NULL){
-		int parentDirectoryFileSector = parentDirectory->Find(dirName)
+		int parentDirectoryFileSector = parentDirectory->Find(dirName, true);
 		OpenFile *parentDirectoryFile = new OpenFile(parentDirectoryFileSector);
 		parentDirectory->FetchFrom(parentDirectoryFile);
 		delete parentDirectoryFile;
@@ -421,11 +421,11 @@ char* FileSystem::GetFileName(char *fullpath)
 char* FileSystem::GetDirectoryName(char *fullpath)
 {
 	char *filename = GetFileName(fullpath);
-	char *dirname = strtok(fullpath, '/');
+	char *dirname = strtok(fullpath, "/");
 	char *parent = NULL;
 	while(dirname != filename){
 		parent = dirname;
-		dirname = strtok(NULL, '/');
+		dirname = strtok(NULL, "/");
 	}
 	return parent;
 }
