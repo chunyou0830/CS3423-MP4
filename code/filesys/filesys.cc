@@ -215,7 +215,7 @@ bool FileSystem::Create(char *name, int initialSize)
 		if(parentDirectoryFileSector == -1){
 			return FALSE;
 		}
-		cout << "GOING TO OPENFILE AT SECTOR " << parentDirectoryFileSector << endl;
+		//cout << "GOING TO OPENFILE AT SECTOR " << parentDirectoryFileSector << endl;
 		parentDirectoryFile = new OpenFile(parentDirectoryFileSector);
 		//cout << "GOING TO FETCHFROM" << endl;
 		//parentDirectory->FetchFrom(parentDirectoryFile);
@@ -227,15 +227,15 @@ bool FileSystem::Create(char *name, int initialSize)
 	}
 	parentDirectory->FetchFrom(parentDirectoryFile);
 	parentDirectory->Print();
-	cout << "1. Find filename in parent dir" << endl;
+	//cout << "1. Find filename in parent dir" << endl;
 	if (parentDirectory->Find(fileName, false) != -1){
 		success = FALSE;			// file is already in directory
 	}
 	else {	
-		cout << "2. Find and set freemap" << endl;
+		//cout << "2. Find and set freemap" << endl;
 		freeMap = new PersistentBitmap(freeMapFile,NumSectors);
 		sector = freeMap->FindAndSet();	// find a sector to hold the file header
-		cout << "3. Add filename to parentdirectory" << endl;
+		//cout << "3. Add filename to parentdirectory" << endl;
 		if (sector == -1) {
 			success = FALSE;		// no free block for file header 
 		}		
@@ -243,7 +243,7 @@ bool FileSystem::Create(char *name, int initialSize)
 			success = FALSE;	// no space in directory
 		}
 		else {
-			cout << "4. Allocate HDR with init size" << endl;
+			//cout << "4. Allocate HDR with init size" << endl;
 			hdr = new FileHeader;
 			if (!hdr->Allocate(freeMap, initialSize)){
 				success = FALSE;	// no space on disk for data
@@ -251,11 +251,11 @@ bool FileSystem::Create(char *name, int initialSize)
 			else {	
 				success = TRUE;
 			// everthing worked, flush all changes back to disk
-				cout << "Writeback hdr" << endl;
+				//cout << "Writeback hdr" << endl;
 				hdr->WriteBack(sector);
-				cout << "Writeback parentdir" << endl;	
+				//cout << "Writeback parentdir" << endl;	
 				parentDirectory->WriteBack(parentDirectoryFile);
-				cout << "Writeback freemap " << endl;
+				//cout << "Writeback freemap " << endl;
 				freeMap->WriteBack(freeMapFile);
 			}
 			delete hdr;
@@ -300,10 +300,10 @@ FileSystem::Open(char *name)
 	}
 
 	int sector = parentDirectory->Find(fileName, false); 
-	cout << "FOUNDED FILE SECTOR NUMBER " << sector << endl;
+	//cout << "FOUNDED FILE SECTOR NUMBER " << sector << endl;
 	if (sector >= 0){
 		openFile = new OpenFile(sector);	// name was found in directory 
-		cout << "File founded" << endl;
+		//cout << "File founded" << endl;
 	}
 	delete parentDirectory;
 	return openFile;				// return NULL if not found
@@ -431,11 +431,11 @@ FileSystem::Print()
 
 char* FileSystem::GetFileName(char *fullpath)
 {
-	DEBUG(dbgFile, "Get file name");
+	//DEBUG(dbgFile, "Get file name");
 	char *filename;
 	filename = strrchr(fullpath, '/');
 	filename++;
-	DEBUG(dbgFile, "Get file name finished");
+	//DEBUG(dbgFile, "Get file name finished");
 	return filename;
 }
 
@@ -446,7 +446,7 @@ char* FileSystem::GetFileName(char *fullpath)
 
 char* FileSystem::GetDirectoryName(char *fullpath)
 {
-	DEBUG(dbgFile, "Get directory name");
+	//DEBUG(dbgFile, "Get directory name");
 	char *filename = GetFileName(fullpath);
 	char *dirname = strtok(fullpath, "/");
 	char *parent = NULL;
@@ -466,7 +466,7 @@ bool FileSystem::CheckFileLength(char *fullpath)
 {
 	DEBUG(dbgFile, "Checking file length");
 	char *filename = GetFileName(fullpath);
-	cout <<	"FILENAME" << strlen(filename) << endl << "FULLPATH" << strlen(fullpath) << endl;
+	//cout <<	"FILENAME" << strlen(filename) << endl << "FULLPATH" << strlen(fullpath) << endl;
 	if(strlen(filename)>9){
 		cout << "File name too long." << endl;
 		return FALSE;
@@ -503,7 +503,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 	// Creating directory in root
 	if(dirName == NULL){
 		int sector = freeMap->FindAndSet();
-		cout << "Allocated new dir at sector " << sector << endl;
+		//cout << "Allocated new dir at sector " << sector << endl;
 		hdr->WriteBack(sector);
 		OpenFile *newDirectoryFile = new OpenFile(sector);
 		newDirectory->WriteBack(newDirectoryFile);
@@ -527,7 +527,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 			parentDirectory->FetchFrom(parentDirectoryFile);
 
 			int sector = freeMap->FindAndSet();
-			cout << "Allocated new dir at sector " << sector << endl;
+			//cout << "Allocated new dir at sector " << sector << endl;
 			hdr->WriteBack(sector);
 			OpenFile *newDirectoryFile = new OpenFile(sector);
 			newDirectory->WriteBack(newDirectoryFile);

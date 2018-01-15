@@ -44,7 +44,7 @@ Directory::Directory(int size)
 	memset(table, 0, sizeof(DirectoryEntry) * size);  // dummy operation to keep valgrind happy
 		
 	tableSize = size;
-	cout << "Directory inited, with tablesize = " << tableSize << endl;
+	//cout << "Directory inited, with tablesize = " << tableSize << endl;
 	for (int i = 0; i < tableSize; i++)
 	table[i].inUse = FALSE;
 }
@@ -97,7 +97,7 @@ int
 Directory::FindIndex(char *name)
 {
 	//cout << "[DirFindIndex]\tInside" << endl;
-	cout << "Fetched table size = " << tableSize << endl;
+	//cout << "Fetched table size = " << tableSize << endl;
 	for (int i = 0; i < tableSize; i++){
 		//cout << i << endl;
 		if (table[i].inUse && !strncmp(table[i].name, name, FileNameMaxLen))
@@ -120,7 +120,7 @@ int
 Directory::Find(char *name, bool recursively)
 {
 	int i = FindIndex(name);
-	cout << "DIRECTORY::FIND i = " << i << endl;
+	//cout << "DIRECTORY::FIND i = " << i << endl;
 	if (i == -1){
 		if(recursively){
 			int result = -1;
@@ -243,7 +243,7 @@ Directory::Print()
 { 
 	FileHeader *hdr = new FileHeader;
 
-	cout << "Direcotry tableSize: " << tableSize << endl;
+	//cout << "Direcotry tableSize: " << tableSize << endl;
 	printf("Directory contents:\n");
 	for (int i = 0; i < tableSize; i++)
 	if (table[i].inUse) {
