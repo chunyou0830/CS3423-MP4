@@ -196,7 +196,7 @@ Directory::Remove(char *name)
 
 bool
 Directory::RemoveAll(PersistentBitmap* freeMap, OpenFile *op){
-	for(int i=0; i<tablesize; i++){
+	for(int i=0; i<tableSize; i++){
 		if(table[i].inUse){
 			if(table[i].type == DIR){
 				Directory *dir = new Directory(NumDirEntries);
