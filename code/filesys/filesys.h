@@ -88,6 +88,14 @@ class FileSystem {
 
     void Print();			// List all the files and their contents
 
+    char* GetFileName(char *fullpath);
+
+	char* GetDirectoryName(char *fullpath);
+
+	bool CheckFileLength(char *fullpath);
+
+	void CreateDirectory(char *fullpath);
+
   private:
    OpenFile* freeMapFile;		// Bit map of free disk blocks,
 					// represented as a file
