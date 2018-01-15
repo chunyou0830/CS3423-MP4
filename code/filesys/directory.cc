@@ -24,6 +24,8 @@
 #include "filehdr.h"
 #include "directory.h"
 
+#define NumDirEntries	64	//MP4 MODIFIED
+
 //----------------------------------------------------------------------
 // Directory::Directory
 // 	Initialize a directory; initially, the directory is completely
