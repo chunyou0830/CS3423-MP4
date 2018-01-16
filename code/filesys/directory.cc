@@ -211,6 +211,9 @@ Directory::RemoveAll(PersistentBitmap* freeMap, OpenFile *op){
 				freeMap->Clear(table[i].sector);
 		}
 	}
+	delete dir;
+	delete of;
+	delete filehdr;
 	this->WriteBack(op);
 }
 
