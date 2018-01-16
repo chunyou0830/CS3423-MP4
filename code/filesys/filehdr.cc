@@ -57,6 +57,7 @@ FileHeader::~FileHeader()
 
 //----------------------------------------------------------------------
 // FileHeader::Allocate
+//	MP4 MODIFIED
 // 	Initialize a fresh file header for a newly created file.
 //	Allocate data blocks for the file out of the map of free disk blocks.
 //	Return FALSE if there are not enough free blocks to accomodate
@@ -69,12 +70,11 @@ FileHeader::~FileHeader()
 bool
 FileHeader::Allocate(PersistentBitmap *freeMap, int fileSize)
 { 
-    numBytes = fileSize;
-    numSectors  = divRoundUp(fileSize, SectorSize);
-    if (freeMap->NumClear() < numSectors)
+	numBytes = fileSize;
+	numSectors  = divRoundUp(fileSize, SectorSize);
+	if (freeMap->NumClear() < numSectors)
 	return FALSE;		// not enough space
 
-//***********************modified
 	int j=0;
 	int num = numSectors;
 
@@ -92,20 +92,13 @@ FileHeader::Allocate(PersistentBitmap *freeMap, int fileSize)
 		kernel->synchDisk->WriteSector(sector,(char*)index);
 		j++;
 	}
-//************************
-/*
-    for (int i = 0; i < numSectors; i++) {
-	dataSectors[i] = freeMap->FindAndSet();
-	// since we checked that there was enough free space,
-	// we expect this to succeed
-	ASSERT(dataSectors[i] >= 0);
-    }
-*/
-    return TRUE;
+
+	return TRUE;
 }
 
 //----------------------------------------------------------------------
 // FileHeader::Deallocate
+//	MP4 MODIFIED
 // 	De-allocate all the space allocated for data blocks for this file.
 //
 //	"freeMap" is the bit map of free disk sectors
@@ -124,12 +117,6 @@ FileHeader::Deallocate(PersistentBitmap *freeMap)
 		ASSERT(freeMap->Test((int) dataSectors[i]));  // ought to be marked!
 		freeMap->Clear((int) dataSectors[i]);
 	}
-/*	
-    for (int i = 0; i < numSectors; i++) {
-	ASSERT(freeMap->Test((int) dataSectors[i]));  // ought to be marked!
-	freeMap->Clear((int) dataSectors[i]);
-    }
-*/
 }
 
 //----------------------------------------------------------------------
@@ -142,7 +129,7 @@ FileHeader::Deallocate(PersistentBitmap *freeMap)
 void
 FileHeader::FetchFrom(int sector)
 {
-    kernel->synchDisk->ReadSector(sector, (char *)this);
+	kernel->synchDisk->ReadSector(sector, (char *)this);
 	
 	/*
 		MP4 Hint:
@@ -161,7 +148,7 @@ FileHeader::FetchFrom(int sector)
 void
 FileHeader::WriteBack(int sector)
 {
-    kernel->synchDisk->WriteSector(sector, (char *)this); 
+	kernel->synchDisk->WriteSector(sector, (char *)this); 
 	
 	/*
 		MP4 Hint:
@@ -176,6 +163,7 @@ FileHeader::WriteBack(int sector)
 
 //----------------------------------------------------------------------
 // FileHeader::ByteToSector
+//	MP4 MODIFIED
 // 	Return which disk sector is storing a particular byte within the file.
 //      This is essentially a translation from a virtual address (the
 //	offset in the file) to a physical address (the sector where the
@@ -191,9 +179,6 @@ FileHeader::ByteToSector(int offset)
 	int index[32];
 	kernel->synchDisk->ReadSector(dataSectors[target/32], (char*)index);
 	return (index[target%32]);
-/*
-    return(dataSectors[offset / SectorSize]);
-*/
 }
 
 //----------------------------------------------------------------------
@@ -204,11 +189,12 @@ FileHeader::ByteToSector(int offset)
 int
 FileHeader::FileLength()
 {
-    return numBytes;
+	return numBytes;
 }
 
 //----------------------------------------------------------------------
 // FileHeader::Print
+//	MP4 MODIFIED
 // 	Print the contents of the file header, and the contents of all
 //	the data blocks pointed to by the file header.
 //----------------------------------------------------------------------
@@ -216,44 +202,32 @@ FileHeader::FileLength()
 void
 FileHeader::Print()
 {
-    int i, j, k=0;
-    char *data = new char[SectorSize];
-    int index[32];
+	int i, j, k=0;
+	char *data = new char[SectorSize];
+	int index[32];
 
-    printf("FileHeader contents.  File size: %d.  File blocks:\n", numBytes);
-    for (i = 0; i < numSectors; i++)
+	printf("FileHeader contents.  File size: %d.  File blocks:\n", numBytes);
+	for (i = 0; i < numSectors; i++){
 		printf("%d ", dataSectors[i]);
-    printf("\nFile contents:\n");
-    for (i=0; i<divRoundUp(numSectors,32); i++){
-    	kernel->synchDisk->ReadSector(dataSectors[i], (char*)index);
-    	for (int l=0; l<32; l++){
-    		if(index[l]!=-1)
-    			{
-    				kernel->synchDisk->ReadSector(index[l], data);
-
-    				for (j = 0; (j < SectorSize) && (k < numBytes); j++, k++) {
-	    				if ('\040' <= data[j] && data[j] <= '\176')   // isprint(data[j])
+	}
+	printf("\nFile contents:\n");
+	for (i=0; i<divRoundUp(numSectors,32); i++){
+		kernel->synchDisk->ReadSector(dataSectors[i], (char*)index);
+		for (int l=0; l<32; l++){
+			if(index[l]!=-1){
+				kernel->synchDisk->ReadSector(index[l], data);
+				for (j = 0; (j < SectorSize) && (k < numBytes); j++, k++){
+					if ('\040' <= data[j] && data[j] <= '\176'){
 						printf("%c", data[j]);
-            			else
+					}
+					else{
 						printf("\\%x", (unsigned char)data[j]);
 					}
-        				printf("\n"); 
-    			}
-    					delete [] data;
-    			}	
-    	}
-    
-/*
-    for (i = k = 0; i < numSectors; i++) {
-	kernel->synchDisk->ReadSector(dataSectors[i], data);
-        for (j = 0; (j < SectorSize) && (k < numBytes); j++, k++) {
-	    if ('\040' <= data[j] && data[j] <= '\176')   // isprint(data[j])
-		printf("%c", data[j]);
-            else
-		printf("\\%x", (unsigned char)data[j]);
+				}
+				printf("\n"); 
+			}
+			delete [] data;
+		}	
 	}
-        printf("\n"); 
-    }
-    delete [] data;
-*/
+	
 }

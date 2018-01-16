@@ -44,7 +44,6 @@ Directory::Directory(int size)
 	memset(table, 0, sizeof(DirectoryEntry) * size);  // dummy operation to keep valgrind happy
 		
 	tableSize = size;
-	//cout << "Directory inited, with tablesize = " << tableSize << endl;
 	for (int i = 0; i < tableSize; i++)
 	table[i].inUse = FALSE;
 }
@@ -70,7 +69,6 @@ void
 Directory::FetchFrom(OpenFile *file)
 {
 	(void) file->ReadAt((char *)table, tableSize * sizeof(DirectoryEntry), 0);
-	//cout << "TableSize After Fetched : " << tableSize << endl;
 }
 
 //----------------------------------------------------------------------
@@ -97,20 +95,17 @@ Directory::WriteBack(OpenFile *file)
 int
 Directory::FindIndex(char *name)
 {
-	//cout << "[DirFindIndex]\tInside" << endl;
-	//cout << "Fetched table size = " << tableSize << endl;
-	cout << "Finding " << name << endl;
 	for (int i = 0; i < tableSize; i++){
-		//cout << i << endl;
-		if (table[i].inUse && !strncmp(table[i].name, name, FileNameMaxLen))
-		return i;
+		if (table[i].inUse && !strncmp(table[i].name, name, FileNameMaxLen)){
+			return i;
+		}
 	}
-	//cout << "[DirFindIndex]\tCannot found" << endl;
 	return -1;		// name not in directory
 }
 
 //----------------------------------------------------------------------
 // Directory::Find
+//	MP4 MODIFIED
 // 	Look up file name in directory, and return the disk sector number
 //	where the file's header is stored. Return -1 if the name isn't 
 //	in the directory.
@@ -121,9 +116,8 @@ Directory::FindIndex(char *name)
 int
 Directory::Find(char *name, bool recursively)
 {
-	cout << "Find Function for " << name << endl;
 	int i = FindIndex(name);
-	cout << "DIRECTORY::FIND i = " << i << endl;
+
 	if (i == -1){
 		if(recursively){
 			int result = -1;
@@ -132,7 +126,9 @@ Directory::Find(char *name, bool recursively)
 					Directory *childDirectory = new Directory(NumDirEntries);
 					OpenFile *childDirectoryFile = new OpenFile(table[j].sector);
 					childDirectory->FetchFrom(childDirectoryFile);
+
 					result = childDirectory->Find(name, true);
+
 					delete childDirectory;
 					delete childDirectoryFile;
 				}
@@ -163,16 +159,18 @@ Directory::Find(char *name, bool recursively)
 bool
 Directory::Add(char *name, int newSector, int fileType)
 { 
-	if (FindIndex(name) != -1)
-	return FALSE;
+	if (FindIndex(name) != -1){
+		return FALSE;
+	}
 
-	for (int i = 0; i < tableSize; i++)
+	for (int i = 0; i < tableSize; i++){
 		if (!table[i].inUse) {
 			table[i].inUse = TRUE;
 			strncpy(table[i].name, name, FileNameMaxLen); 
 			table[i].sector = newSector;
 			table[i].type = fileType;
-		return TRUE;
+			return TRUE;
+		}
 	}
 	return FALSE;	// no space.  Fix when we have extensible files.
 }
@@ -196,24 +194,31 @@ Directory::Remove(char *name)
 	return TRUE;	
 }
 
+//----------------------------------------------------------------------
+// Directory::RemoveAll
+//	MP4 MODIFIED
+// 	Remove the inner files of a given directory. 
+//----------------------------------------------------------------------
+
 bool
 Directory::RemoveAll(PersistentBitmap* freeMap, OpenFile *op){
 	for(int i=0; i<tableSize; i++){
 		if(table[i].inUse){
+			// If the file is a directory, remove the files under.
 			if(table[i].type == DIR){
-				Directory *dir = new Directory(NumDirEntries);
-				OpenFile *of = new OpenFile(table[i].sector);
-				dir->FetchFrom(of);
-				dir->RemoveAll(freeMap,of);
-				delete dir;
-				delete of;
+				Directory *directory = new Directory(NumDirEntries);
+				OpenFile *directoryFile = new OpenFile(table[i].sector);
+				directory->FetchFrom(directoryFile);
+				directory->RemoveAll(freeMap, directoryFile);
+				delete directory;
+				delete directoryFile;
 			}
-				FileHeader *filehdr = new FileHeader;
-				filehdr->FetchFrom(table[i].sector);
-				table[i].inUse = FALSE;
-				filehdr->Deallocate(freeMap);
-				freeMap->Clear(table[i].sector);
-				delete filehdr;
+			FileHeader *hdr = new FileHeader;
+			hdr->FetchFrom(table[i].sector);
+			table[i].inUse = FALSE;
+			hdr->Deallocate(freeMap);
+			freeMap->Clear(table[i].sector);
+			delete hdr;
 		}
 	}
 	this->WriteBack(op);
@@ -221,7 +226,7 @@ Directory::RemoveAll(PersistentBitmap* freeMap, OpenFile *op){
 
 //----------------------------------------------------------------------
 // Directory::List
-//  MP4 MODIFIED.
+//  MP4 MODIFIED
 // 	List all the file names in the directory. 
 //----------------------------------------------------------------------
 
@@ -252,10 +257,6 @@ Directory::List(int level, bool recursively)
 			}
 		}
 	}
-	
-	/*for (int i = 0; i < tableSize; i++)
-		if (table[i].inUse)
-			printf("%s\n", table[i].name);*/
 }
 
 //----------------------------------------------------------------------
@@ -269,7 +270,6 @@ Directory::Print()
 { 
 	FileHeader *hdr = new FileHeader;
 
-	//cout << "Direcotry tableSize: " << tableSize << endl;
 	printf("Directory contents:\n");
 	for (int i = 0; i < tableSize; i++)
 	if (table[i].inUse) {

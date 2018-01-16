@@ -154,7 +154,7 @@ FileSystem::~FileSystem()
 
 //----------------------------------------------------------------------
 // FileSystem::Create
-//  MP4 MODIFIED.
+//  MP4 MODIFIED
 // 	Create a file in the Nachos file system (similar to UNIX create).
 //	Since we can't increase the size of files dynamically, we have
 //	to give Create the initial size of the file.
@@ -199,7 +199,7 @@ bool FileSystem::Create(char *name, int initialSize)
 
 	char *fileName = GetFileName(name);
 	char *dirName = GetDirectoryName(name);
-	//cout << "name: " << name << endl << "fileName: " << fileName << endl << "dirName: " << dirName << endl;
+	
 	// Default root dir as parent
 	parentDirectory = new Directory(NumDirEntries);
 	parentDirectoryFile = directoryFile;
@@ -211,12 +211,10 @@ bool FileSystem::Create(char *name, int initialSize)
 		if(parentDirectoryFileSector == -1){
 			return FALSE;
 		}
-		//cout << "Parent Directory File Sector is " << parentDirectoryFileSector << endl;
 		parentDirectoryFile = new OpenFile(parentDirectoryFileSector);
 		delete rootDirectory;
 	}
 	parentDirectory->FetchFrom(parentDirectoryFile);
-	//parentDirectory->Print();
 	
 	if (parentDirectory->Find(fileName, false) != -1){
 		success = FALSE;			// file is already in directory
@@ -237,7 +235,7 @@ bool FileSystem::Create(char *name, int initialSize)
 			}
 			else {	
 				success = TRUE;
-			// everthing worked, flush all changes back to disk
+				// everthing worked, flush all changes back to disk
 				hdr->WriteBack(sector);
 				parentDirectory->WriteBack(parentDirectoryFile);
 				freeMap->WriteBack(freeMapFile);
@@ -248,7 +246,6 @@ bool FileSystem::Create(char *name, int initialSize)
 	}
 	if(success){
 		ASSERT(parentDirectory->Find(fileName, false) != -1);
-		//cout << "Pass opening test after file creation" << endl;
 	}
 	else{
 		cout << "File creation not success" << endl;
@@ -260,7 +257,7 @@ bool FileSystem::Create(char *name, int initialSize)
 
 //----------------------------------------------------------------------
 // FileSystem::Open
-//  MP4 MODIFIED.
+//  MP4 MODIFIED
 // 	Open a file for reading and writing.  
 //	To open a file:
 //	  Find the location of the file's header, using the directory 
@@ -282,7 +279,6 @@ FileSystem::Open(char *name)
 
 	// Default root dir as parent
 	parentDirectory->FetchFrom(directoryFile);
-	//parentDirectory->Print();
 	// If not in root dir, change the parent directory
 	if(dirName != NULL){
 		int parentDirectoryFileSector = parentDirectory->Find(dirName, true);
@@ -292,10 +288,8 @@ FileSystem::Open(char *name)
 	}
 
 	int sector = parentDirectory->Find(fileName, false); 
-	//cout << "FOUNDED FILE SECTOR NUMBER " << sector << endl;
 	if (sector >= 0){
 		openFile = new OpenFile(sector);	// name was found in directory 
-		//cout << "File founded" << endl;
 	}
 	delete parentDirectory;
 	return openFile;				// return NULL if not found
@@ -303,6 +297,7 @@ FileSystem::Open(char *name)
 
 //----------------------------------------------------------------------
 // FileSystem::Remove
+//	MP4 MODIFIED
 // 	Delete a file from the file system.  This requires:
 //	    Remove it from the directory
 //	    Delete the space for its header
@@ -321,19 +316,19 @@ FileSystem::Remove(char *name, bool recursiveflag)
 	Directory *directory;
 	PersistentBitmap *freeMap;
 	FileHeader *fileHdr;
-    OpenFile *of;
+	OpenFile *of;
 	int sector;
 	
 	directory = new Directory(NumDirEntries);
 	directory->FetchFrom(directoryFile);
-    char *fileName = GetFileName(name);
-    char *dirName = GetDirectoryName(name);
-    of = directoryFile;
-    if (recursiveflag==false){
-        if(dirName != NULL){
-            of = new OpenFile(directory->Find(dirName,true));
-            directory->FetchFrom(of);
-        }
+	char *fileName = GetFileName(name);
+	char *dirName = GetDirectoryName(name);
+	of = directoryFile;
+	if (recursiveflag==false){
+		if(dirName != NULL){
+			of = new OpenFile(directory->Find(dirName,true));
+			directory->FetchFrom(of);
+		}
 	sector = directory->Find(fileName, false);
 	if (sector == -1) {
 	   delete directory;
@@ -350,47 +345,48 @@ FileSystem::Remove(char *name, bool recursiveflag)
 
 	freeMap->WriteBack(freeMapFile);		// flush to disk
 	directory->WriteBack(of);        // flush to disk
-}else{
-    freeMap = new PersistentBitmap(freeMapFile, NumSectors);
-    sector = directory->Find(fileName,true);
-    if (sector == -1) {
-       delete directory;
-       return FALSE;             // file not found 
-    }
-    Directory *dirtemp = new Directory(NumDirEntries);
-    OpenFile *temp = directoryFile;
-    dirtemp->FetchFrom(directoryFile);
-    if(dirName != NULL){
-        of = new OpenFile(directory->Find(dirName,true));
-        directory->FetchFrom(temp);
-    }
+	}
+		else{
+		freeMap = new PersistentBitmap(freeMapFile, NumSectors);
+		sector = directory->Find(fileName,true);
+		if (sector == -1) {
+		   delete directory;
+		   return FALSE;             // file not found 
+		}
+		Directory *dirtemp = new Directory(NumDirEntries);
+		OpenFile *temp = directoryFile;
+		dirtemp->FetchFrom(directoryFile);
+		if(dirName != NULL){
+			of = new OpenFile(directory->Find(dirName,true));
+			directory->FetchFrom(temp);
+		}
 
-    of = new OpenFile(sector);
-    directory->FetchFrom(of);
-    directory->RemoveAll(freeMap,of);
+		of = new OpenFile(sector);
+		directory->FetchFrom(of);
+		directory->RemoveAll(freeMap,of);
 
-    fileHdr = new FileHeader;
-    fileHdr->FetchFrom(sector);
+		fileHdr = new FileHeader;
+		fileHdr->FetchFrom(sector);
 
-    fileHdr->Deallocate(freeMap);
-    freeMap->Clear(sector);
+		fileHdr->Deallocate(freeMap);
+		freeMap->Clear(sector);
 
-    dirtemp->Remove(fileName);
+		dirtemp->Remove(fileName);
 
-    freeMap->WriteBack(freeMapFile);
-    dirtemp->WriteBack(temp);
-	delete dirtemp;
-}
+		freeMap->WriteBack(freeMapFile);
+		dirtemp->WriteBack(temp);
+		delete dirtemp;
+	}
 	delete fileHdr;
 	delete directory;
 	delete freeMap;
-    delete of;
+	delete of;
 	return TRUE;
 } 
 
 //----------------------------------------------------------------------
 // FileSystem::List
-//  MP4 MODIFIED.
+//  MP4 MODIFIED
 // 	List all the files in the file system directory.
 //----------------------------------------------------------------------
 
@@ -459,35 +455,26 @@ FileSystem::Print()
 
 //----------------------------------------------------------------------
 // FileSystem::GetFileName
-//  MP4 MODIFIED. Get the filename from full file path.
+//  MP4 MODIFIED
+//	Get the filename from full file path.
 //----------------------------------------------------------------------
 
 char* FileSystem::GetFileName(char *fullpath)
 {
-	//char *fullpath_cp = (char*)malloc(sizeof(char) * (strlen(fullpath)+1));
-	//DEBUG(dbgFile, "Get file name");
 	char *filename;
 	filename = strrchr(fullpath, '/');
 	filename++;
-	//DEBUG(dbgFile, "Get file name finished");
-	//cout << "GetFileName " << filename << endl;
 	return filename;
 }
 
 //----------------------------------------------------------------------
 // FileSystem::GetDirectoryName
-//  MP4 MODIFIED. Get the last parent directory from full file path.
+//  MP4 MODIFIED
+//	Get the last parent directory from full file path.
 //----------------------------------------------------------------------
 
 char* FileSystem::GetDirectoryName(char *fullpath)
 {
-	//char *fullpath_cp = new char[strlen(fullpath)+1]();//(char*)malloc(sizeof(char) * (strlen(fullpath)+1));
-	//memset(fullpath_cp, 0, strlen(fullpath)+1);
-	//cout << "Inited fullpath_cp is " << fullpath_cp << endl;
-	//cout << "Input dir name is " << fullpath << endl;
-	//memcpy(fullpath_cp, fullpath, strlen(fullpath)+1);
-	//cout << "Copied content" << fullpath_cp << endl;
-	//DEBUG(dbgFile, "Get directory name");
 	char *filename = GetFileName(fullpath);
 	char *dirname = strtok(fullpath, "/");
 	char *parent = NULL;
@@ -496,21 +483,20 @@ char* FileSystem::GetDirectoryName(char *fullpath)
 		dirname = strtok(NULL, "/");
 	}
 	cout << "GetDirName " << parent << endl;
-	//free(fullpath_cp);
-	//delete fullpath_cp;
 	return parent;
 }
 
 //----------------------------------------------------------------------
 // FileSystem::CheckFileLength
-//  MP4 MODIFIED. Check if the length of the path and filename satisfies the work request.
+//  MP4 MODIFIED
+//	Check if the length of the path and filename satisfies the work request.
 //----------------------------------------------------------------------
 
 bool FileSystem::CheckFileLength(char *fullpath)
 {
 	DEBUG(dbgFile, "Checking file length");
 	char *filename = GetFileName(fullpath);
-	//cout <<	"FILENAME" << strlen(filename) << endl << "FULLPATH" << strlen(fullpath) << endl;
+
 	if(strlen(filename)>9){
 		cout << "File name too long." << endl;
 		return FALSE;
@@ -525,7 +511,8 @@ bool FileSystem::CheckFileLength(char *fullpath)
 
 //----------------------------------------------------------------------
 // FileSystem::CreateDirectory
-//  MP4 MODIFIED. Check if the length of the path and filename satisfies the work request.
+//  MP4 MODIFIED
+//	Check if the length of the path and filename satisfies the work request.
 //----------------------------------------------------------------------
 
 void FileSystem::CreateDirectory(char *fullpath)
@@ -533,34 +520,26 @@ void FileSystem::CreateDirectory(char *fullpath)
 	if(!CheckFileLength(fullpath)){
 		return;
 	}
-	PersistentBitmap * freeMap = new PersistentBitmap(freeMapFile, NumSectors);
+	PersistentBitmap *freeMap = new PersistentBitmap(freeMapFile, NumSectors);
 	OpenFile *freeMapFile = new OpenFile(FreeMapSector);
 	
 	char *fileName = GetFileName(fullpath);
-	//cout << "Getted file name" << endl;
 	char *dirName = GetDirectoryName(fullpath);
-	cout << "Getted dir name: " << dirName << endl;
+
 	FileHeader *hdr = new FileHeader;
 	hdr->Allocate(freeMap, DirectoryFileSize);
 
 	Directory *rootDirectory = new Directory(NumDirEntries);
-	//cout << "fetcfh root dir" << endl;
 	rootDirectory->FetchFrom(directoryFile);
-	//cout << "Create new dir instance" << endl;
 	Directory *newDirectory = new Directory(NumDirEntries);
-	//cout << "Before inside if section" << endl;
+
 	// Creating directory in root
 	if(dirName == NULL){
 		int sector = freeMap->FindAndSet();
-		cout << "Allocated new dir at sector " << sector << endl;
 		hdr->WriteBack(sector);
-		//cout << "new openfile at sector" << endl;
 		OpenFile *newDirectoryFile = new OpenFile(sector);
-		//cout << "Write Back" << endl;
 		newDirectory->WriteBack(newDirectoryFile);
-		//cout << "root dir add" << endl;
 		rootDirectory->Add(fileName, sector, DIR);
-		//cout << "root dir writeback" << endl;
 		rootDirectory->WriteBack(directoryFile);
 
 		delete newDirectoryFile;
@@ -568,7 +547,6 @@ void FileSystem::CreateDirectory(char *fullpath)
 	// Creating directory in a directory
 	else{
 		int parentDirectoryFileSector = rootDirectory->Find(dirName, true);
-		//cout << "Parent Directory File Sector is " << parentDirectoryFileSector << endl;
 		// If cannot find parent dir, then return
 		if(parentDirectoryFileSector == -1){
 			cout << "Invalid path" << endl;
@@ -580,7 +558,6 @@ void FileSystem::CreateDirectory(char *fullpath)
 			parentDirectory->FetchFrom(parentDirectoryFile);
 
 			int sector = freeMap->FindAndSet();
-			cout << "Allocated new dir at sector " << sector << endl;
 			hdr->WriteBack(sector);
 			OpenFile *newDirectoryFile = new OpenFile(sector);
 			newDirectory->WriteBack(newDirectoryFile);
@@ -595,15 +572,19 @@ void FileSystem::CreateDirectory(char *fullpath)
 	}
 
 	delete rootDirectory;
-	//newDirectory->Print();
 	delete newDirectory;
 
 	freeMap->WriteBack(freeMapFile);
 	delete freeMapFile;
 	delete freeMap;
 	delete hdr;
-	//delete dirName;
 }
+
+//----------------------------------------------------------------------
+// FileSystem::Write
+//  MP4 MODIFIED
+//	Copied from Previous Works
+//----------------------------------------------------------------------
 	
 int FileSystem::Write(char *buf, int len, int id){
 	OpenFile* of;
@@ -616,6 +597,12 @@ int FileSystem::Write(char *buf, int len, int id){
 	return result;
 }
 
+//----------------------------------------------------------------------
+// FileSystem::Read
+//  MP4 MODIFIED
+//	Copied from Previous Works
+//----------------------------------------------------------------------
+
 int FileSystem::Read(char *buf, int len, int id){
 	OpenFile* of;
 	if(fileDescriptorTable[id-1]==NULL||(id-1)<0||(id-1)>=20){
@@ -626,6 +613,12 @@ int FileSystem::Read(char *buf, int len, int id){
 	result = of->Read(buf,len);
 	return result;
 }
+
+//----------------------------------------------------------------------
+// FileSystem::Close
+//  MP4 MODIFIED
+//	Copied from Previous Works
+//----------------------------------------------------------------------
 
 int FileSystem::Close(int id){
 	if(fileDescriptorTable[id-1]==NULL||(id-1)<0||(id-1)>=20){
