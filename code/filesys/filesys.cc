@@ -482,7 +482,6 @@ char* FileSystem::GetDirectoryName(char *fullpath)
 		parent = dirname;
 		dirname = strtok(NULL, "/");
 	}
-	cout << "GetDirName " << parent << endl;
 	return parent;
 }
 
