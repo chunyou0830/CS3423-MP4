@@ -252,7 +252,12 @@ bool FileSystem::Create(char *name, int initialSize)
 		cout << "File creation not success" << endl;
 		success = FALSE;
 	}
+	//cout << "[FileSystem::Create]\tName after: " << name << endl;
 	delete parentDirectory;
+	if(dirName!=NULL){
+		delete parentDirectoryFile;
+	}
+	delete dirName;
 	return success;
 }
 
@@ -293,6 +298,7 @@ FileSystem::Open(char *name)
 		openFile = new OpenFile(sector);	// name was found in directory 
 	}
 	delete parentDirectory;
+	delete dirName;
 	return openFile;				// return NULL if not found
 }
 
@@ -382,6 +388,7 @@ FileSystem::Remove(char *name, bool recursiveflag)
 	delete directory;
 	delete freeMap;
 	delete of;
+	delete dirName;
 	return TRUE;
 } 
 
@@ -476,13 +483,29 @@ char* FileSystem::GetFileName(char *fullpath)
 
 char* FileSystem::GetDirectoryName(char *fullpath)
 {
+	//cout << "[FileSystem::GetDirectoryName]\tInput Name: " << fullpath << endl;
+	int fullpath_len = strlen(fullpath)+1;
+	char *fullpath_tmp = new char[fullpath_len]();
+	memcpy(fullpath_tmp, fullpath, fullpath_len);
 	char *filename = GetFileName(fullpath);
 	char *dirname = strtok(fullpath, "/");
+
 	char *parent = NULL;
+	parent = new char[255]();
+
 	while(dirname != filename){
-		parent = dirname;
+		memcpy(parent, dirname, strlen(dirname)+1);
+		//parent = dirname;
+		//cout << "* " << parent << endl;
 		dirname = strtok(NULL, "/");
 	}
+	memcpy(fullpath, fullpath_tmp, fullpath_len);
+	delete fullpath_tmp;
+	if(strlen(parent)==0){
+		delete parent;
+		parent = NULL;
+	}
+	//cout << "[FileSystem::GetDirectoryName]\tOutput Name: " << parent << endl;
 	return parent;
 }
 
@@ -576,6 +599,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 	delete freeMapFile;
 	delete freeMap;
 	delete hdr;
+	delete dirName;
 }
 
 //----------------------------------------------------------------------
