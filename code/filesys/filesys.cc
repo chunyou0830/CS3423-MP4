@@ -379,6 +379,7 @@ FileSystem::Remove(char *name, bool recursiveflag)
 
     freeMap->WriteBack(freeMapFile);
     dirtemp->WriteBack(temp);
+	delete dirtemp;
 }
 	delete fileHdr;
 	delete directory;
@@ -463,6 +464,7 @@ FileSystem::Print()
 
 char* FileSystem::GetFileName(char *fullpath)
 {
+	//char *fullpath_cp = (char*)malloc(sizeof(char) * (strlen(fullpath)+1));
 	//DEBUG(dbgFile, "Get file name");
 	char *filename;
 	filename = strrchr(fullpath, '/');
@@ -479,19 +481,23 @@ char* FileSystem::GetFileName(char *fullpath)
 
 char* FileSystem::GetDirectoryName(char *fullpath)
 {
-	char *fullpath_cp = (char*)malloc(sizeof(char) * (strlen(fullpath)+1));
+	//char *fullpath_cp = new char[strlen(fullpath)+1]();//(char*)malloc(sizeof(char) * (strlen(fullpath)+1));
+	//memset(fullpath_cp, 0, strlen(fullpath)+1);
+	//cout << "Inited fullpath_cp is " << fullpath_cp << endl;
 	//cout << "Input dir name is " << fullpath << endl;
-	memcpy(fullpath_cp, fullpath, strlen(fullpath)+1);
+	//memcpy(fullpath_cp, fullpath, strlen(fullpath)+1);
 	//cout << "Copied content" << fullpath_cp << endl;
 	//DEBUG(dbgFile, "Get directory name");
-	char *filename = GetFileName(fullpath_cp);
-	char *dirname = strtok(fullpath_cp, "/");
+	char *filename = GetFileName(fullpath);
+	char *dirname = strtok(fullpath, "/");
 	char *parent = NULL;
 	while(dirname != filename){
 		parent = dirname;
 		dirname = strtok(NULL, "/");
 	}
-	//cout << "GetDirName " << parent << endl;
+	cout << "GetDirName " << parent << endl;
+	//free(fullpath_cp);
+	//delete fullpath_cp;
 	return parent;
 }
 
@@ -533,7 +539,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 	char *fileName = GetFileName(fullpath);
 	//cout << "Getted file name" << endl;
 	char *dirName = GetDirectoryName(fullpath);
-	//cout << "Getted dir name" << endl;
+	cout << "Getted dir name: " << dirName << endl;
 	FileHeader *hdr = new FileHeader;
 	hdr->Allocate(freeMap, DirectoryFileSize);
 
@@ -546,7 +552,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 	// Creating directory in root
 	if(dirName == NULL){
 		int sector = freeMap->FindAndSet();
-		//cout << "Allocated new dir at sector " << sector << endl;
+		cout << "Allocated new dir at sector " << sector << endl;
 		hdr->WriteBack(sector);
 		//cout << "new openfile at sector" << endl;
 		OpenFile *newDirectoryFile = new OpenFile(sector);
@@ -574,7 +580,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 			parentDirectory->FetchFrom(parentDirectoryFile);
 
 			int sector = freeMap->FindAndSet();
-			//cout << "Allocated new dir at sector " << sector << endl;
+			cout << "Allocated new dir at sector " << sector << endl;
 			hdr->WriteBack(sector);
 			OpenFile *newDirectoryFile = new OpenFile(sector);
 			newDirectory->WriteBack(newDirectoryFile);
@@ -596,6 +602,7 @@ void FileSystem::CreateDirectory(char *fullpath)
 	delete freeMapFile;
 	delete freeMap;
 	delete hdr;
+	//delete dirName;
 }
 	
 int FileSystem::Write(char *buf, int len, int id){

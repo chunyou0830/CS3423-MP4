@@ -99,6 +99,7 @@ Directory::FindIndex(char *name)
 {
 	//cout << "[DirFindIndex]\tInside" << endl;
 	//cout << "Fetched table size = " << tableSize << endl;
+	cout << "Finding " << name << endl;
 	for (int i = 0; i < tableSize; i++){
 		//cout << i << endl;
 		if (table[i].inUse && !strncmp(table[i].name, name, FileNameMaxLen))
@@ -120,8 +121,9 @@ Directory::FindIndex(char *name)
 int
 Directory::Find(char *name, bool recursively)
 {
+	cout << "Find Function for " << name << endl;
 	int i = FindIndex(name);
-	//cout << "DIRECTORY::FIND i = " << i << endl;
+	cout << "DIRECTORY::FIND i = " << i << endl;
 	if (i == -1){
 		if(recursively){
 			int result = -1;
