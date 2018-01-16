@@ -203,17 +203,17 @@ Directory::RemoveAll(PersistentBitmap* freeMap, OpenFile *op){
 				OpenFile *of = new OpenFile(table[i].sector);
 				dir->FetchFrom(of);
 				dir->RemoveAll(freeMap,of);
+				delete dir;
+				delete of;
 			}
 				FileHeader *filehdr = new FileHeader;
 				filehdr->FetchFrom(table[i].sector);
 				table[i].inUse = FALSE;
 				filehdr->Deallocate(freeMap);
 				freeMap->Clear(table[i].sector);
+				delete filehdr;
 		}
 	}
-	delete dir;
-	delete of;
-	delete filehdr;
 	this->WriteBack(op);
 }
 
