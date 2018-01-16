@@ -195,7 +195,7 @@ bool FileSystem::Create(char *name, int initialSize)
 	int sector;
 	bool success;
 
-	DEBUG(dbgFile, "Creating file " << name << " size " << initialSize);
+	DEBUG(dbgFile, "[FileSystem::Create]\tCreating file " << name << " size " << initialSize);
 
 	char *fileName = GetFileName(name);
 	char *dirName = GetDirectoryName(name);
@@ -239,6 +239,7 @@ bool FileSystem::Create(char *name, int initialSize)
 				hdr->WriteBack(sector);
 				parentDirectory->WriteBack(parentDirectoryFile);
 				freeMap->WriteBack(freeMapFile);
+				DEBUG(dbgFile, "[FileSystem::Create]\tFile Created Success");
 			}
 			delete hdr;
 		}
@@ -493,7 +494,6 @@ char* FileSystem::GetDirectoryName(char *fullpath)
 
 bool FileSystem::CheckFileLength(char *fullpath)
 {
-	DEBUG(dbgFile, "Checking file length");
 	char *filename = GetFileName(fullpath);
 
 	if(strlen(filename)>9){
@@ -504,7 +504,6 @@ bool FileSystem::CheckFileLength(char *fullpath)
 		cout << "File path too long." << endl;
 		return FALSE;
 	}
-	DEBUG(dbgFile, "Checking file length passed");
 	return TRUE;
 }
 
